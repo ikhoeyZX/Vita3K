@@ -160,8 +160,8 @@ static int create_decoder(EmuEnvState &emuenv, SceAudiodecCtrl *ctrl, SceAudiode
         info.super_frame_size = decoder->get(DecoderQuery::AT9_SUPERFRAME_SIZE);
         info.frames_in_super_frame = decoder->get(DecoderQuery::AT9_FRAMES_IN_SUPERFRAME);
         ctrl->es_size_max = std::min(info.super_frame_size, SCE_AUDIODEC_AT9_MAX_ES_SIZE);
-        ctrl->pcm_size_max = decoder->get(DecoderQuery::AT9_SAMPLE_PER_FRAME)
-            * decoder->get(DecoderQuery::CHANNELS) * sizeof(int16_t);
+        ctrl->pcm_size_max = static_cast<unsigned long>(decoder->get(DecoderQuery::AT9_SAMPLE_PER_FRAME)
+            * decoder->get(DecoderQuery::CHANNELS)) * sizeof(int16_t);
         return 0;
     }
     case SCE_AUDIODEC_TYPE_AAC: {
@@ -247,7 +247,7 @@ static int decode_audio_frames(EmuEnvState &emuenv, const char *export_name, Sce
         ctrl->es_size_used += es_size_used;
         es_data += es_size_used;
 
-        uint32_t pcm_size_given = size.samples * decoder->get(DecoderQuery::CHANNELS) * sizeof(int16_t);
+        uint32_t pcm_size_given = static_cast<unsigned long>(size.samples * decoder->get(DecoderQuery::CHANNELS)) * sizeof(int16_t);
         assert(pcm_size_given <= ctrl->pcm_size_max);
         ctrl->pcm_size_given += pcm_size_given;
         pcm_data += pcm_size_given;
@@ -354,7 +354,7 @@ EXPORT(int, sceAudiodecPartlyDecode, SceAudiodecCtrl *ctrl, SceUInt32 samples_of
         decoder->receive(temp_storage.data() + old_size, &size);
     }
 
-    memcpy(pcm_data + samples_offset * bytes_per_sample, temp_storage.data() + samples_offset * bytes_per_sample, samples_to_decode * bytes_per_sample);
+    memcpy(pcm_data + samples_offset * bytes_per_sample, temp_storage.data() + samples_offset * bytes_per_sample, static_cast<unsigned long>(samples_to_decode * bytes_per_sample));
 
     return 0;
 }
