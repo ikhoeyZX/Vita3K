@@ -781,7 +781,7 @@ std::vector<uint32_t> GLSurfaceCache::dump_frame(Ptr<const void> address, uint32
 
     const uint32_t real_height = std::min(height, info.height - line_delta);
 
-    std::vector<uint32_t> frame(width * height, 0);
+    std::vector<unsigned long> frame(width * height, 0);
     glPixelStorei(GL_PACK_ROW_LENGTH, 0);
 
     // retrieve the texture, it is on the GPU right now
