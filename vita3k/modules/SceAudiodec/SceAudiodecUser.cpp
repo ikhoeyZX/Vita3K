@@ -334,7 +334,7 @@ EXPORT(int, sceAudiodecPartlyDecode, SceAudiodecCtrl *ctrl, SceUInt32 samples_of
     ctrl->es_size_used = 0;
     ctrl->pcm_size_given = 0;
     std::vector<uint8_t> temp_storage;
-    temp_storage.reserve((samples_offset + samples_to_decode) * bytes_per_sample);
+    temp_storage.reserve((static_cast<unsigned long>((samples_offset + samples_to_decode) * bytes_per_sample));
 
     while (ctrl->pcm_size_given < (samples_offset + samples_to_decode) * bytes_per_sample) {
         DecoderSize size;
