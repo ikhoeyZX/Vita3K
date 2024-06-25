@@ -444,7 +444,7 @@ static bool format_need_temp_storage(const GLState &state, SceGxmColorSurface &s
         needed_pixels = static_cast<unsigned long>(surface.strideInPixels * height);
     } else {
         // width and height is already upscaled
-        needed_pixels = static_cast<unsigned long>(width * heigh)t;
+        needed_pixels = static_cast<unsigned long>(width * height);
     }
 
     if ((surface.colorFormat == SCE_GXM_COLOR_FORMAT_SE5M9M9M9_BGR) || (surface.colorFormat == SCE_GXM_COLOR_FORMAT_SE5M9M9M9_RGB)) {
