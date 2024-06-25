@@ -441,10 +441,10 @@ static std::map<SceGxmColorFormat, std::pair<GLenum, GLenum>> GXM_COLOR_FORMAT_T
 static bool format_need_temp_storage(const GLState &state, SceGxmColorSurface &surface, std::vector<std::uint8_t> &storage, const std::uint32_t width, const std::uint32_t height) {
     size_t needed_pixels;
     if (state.res_multiplier == 1.0f) {
-        needed_pixels = surface.strideInPixels * height;
+        needed_pixels = static_cast<unsigned long>(surface.strideInPixels * height);
     } else {
         // width and height is already upscaled
-        needed_pixels = width * height;
+        needed_pixels = static_cast<unsigned long>(width * heigh)t;
     }
 
     if ((surface.colorFormat == SCE_GXM_COLOR_FORMAT_SE5M9M9M9_BGR) || (surface.colorFormat == SCE_GXM_COLOR_FORMAT_SE5M9M9M9_RGB)) {
@@ -511,7 +511,7 @@ static void post_process_pixels_data(GLState &renderer, std::uint32_t *pixels, s
         const size_t bytes_per_pixel = (bpp + 7) >> 3;
         std::vector<uint8_t> buffer;
 
-        buffer.resize(((width + 31) / 32) * ((height + 31) / 32) * 1024 * bytes_per_pixel);
+        buffer.resize(static_cast<unsigned long>(((width + 31) / 32) * ((height + 31) / 32) * 1024 * bytes_per_pixel));
         for (uint32_t j = 0; j < height; j++) {
             for (uint32_t hori_tile = 0; hori_tile < (width >> 5); hori_tile++) {
                 const size_t tile_position = hori_tile + (j >> 5) * ((width + 31) >> 5);
