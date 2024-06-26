@@ -114,7 +114,7 @@ bool Atrac9DecoderState::receive(uint8_t *data, DecoderSize *size) {
     Atrac9CodecInfo *info = static_cast<Atrac9CodecInfo *>(atrac9_info);
 
     if (data) {
-        memcpy(data, result.data(), info->frameSamples * info->channels * sizeof(uint16_t));
+        memcpy(data, result.data(), static_cast<unsigned long>(info->frameSamples * info->channels) * sizeof(uint16_t));
     }
 
     if (size) {
@@ -137,7 +137,7 @@ Atrac9DecoderState::Atrac9DecoderState(uint32_t config_data)
     atrac9_info = info;
     Atrac9GetCodecInfo(decoder_handle, info);
 
-    result.resize(info->frameSamples * info->channels * sizeof(uint16_t));
+    result.resize(static_cast<unsigned long>(info->frameSamples * info->channels) * sizeof(uint16_t));
 
     superframe_frame_idx = 0;
     superframe_data_left = info->superframeSize;
