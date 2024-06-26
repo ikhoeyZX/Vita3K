@@ -170,7 +170,7 @@ std::vector<int16_t> PlayerState::receive_audio() {
         last_sample_count = frame->nb_samples;
         last_sample_rate = frame->sample_rate;
 
-        data.resize(frame->nb_samples * frame->ch_layout.nb_channels);
+        data.resize(static_cast<size_t>(frame->nb_samples * frame->ch_layout.nb_channels));
 
         for (int a = 0; a < frame->nb_samples; a++) {
             for (int b = 0; b < frame->ch_layout.nb_channels; b++) {
