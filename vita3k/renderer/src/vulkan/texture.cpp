@@ -384,7 +384,7 @@ void VKTextureCache::configure_texture(const SceGxmTexture &gxm_texture) {
 
 // add an alpha channel to u8u8u8 textures
 static void *add_alpha_channel(const void *pixels, const uint32_t width, const uint32_t height, std::vector<uint8_t> &data) {
-    data.resize(width * height * 4);
+    data.resize(static_cast<size_t>(width * height * 4));
 
     const uint8_t *src = static_cast<const uint8_t *>(pixels);
     uint8_t *dst = data.data();
@@ -434,7 +434,7 @@ void VKTextureCache::upload_texture_impl(SceGxmTextureBaseFormat base_format, ui
     } else {
         size_t bpp = gxm::bits_per_pixel(base_format);
         size_t bytes_per_pixel = (bpp + 7) >> 3;
-        upload_size = pixels_per_stride * height * bytes_per_pixel;
+        upload_size = static_cast<unsigned long>(pixels_per_stride * height * bytes_per_pixel);
     }
 
     if (staging_buffer.used_so_far + upload_size > staging_buffer.buffer.size) {
@@ -518,7 +518,7 @@ void VKTextureCache::configure_sampler(size_t index, const SceGxmTexture &textur
 
 void VKTextureCache::import_configure_impl(SceGxmTextureBaseFormat base_format, uint32_t width, uint32_t height, bool is_srgb, uint16_t nb_components, uint16_t mipcount, bool swap_rb) {
     const size_t bpp = gxm::bits_per_pixel(base_format);
-    const uint32_t texture_size = align(width, 4) * align(height, 4) * bpp / 8;
+    const uint32_t texture_size = static_cast<unsigned long>(align(width, 4) * align(height, 4)) * bpp / 8;
     current_texture->memory_needed = align(texture_size, 16);
 
     current_texture->mip_count = mipcount;
