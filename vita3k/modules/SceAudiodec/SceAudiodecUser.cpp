@@ -161,7 +161,7 @@ static int create_decoder(EmuEnvState &emuenv, SceAudiodecCtrl *ctrl, SceAudiode
         info.frames_in_super_frame = decoder->get(DecoderQuery::AT9_FRAMES_IN_SUPERFRAME);
         ctrl->es_size_max = std::min(info.super_frame_size, SCE_AUDIODEC_AT9_MAX_ES_SIZE);
         ctrl->pcm_size_max = static_cast<uint32_t>(decoder->get(DecoderQuery::AT9_SAMPLE_PER_FRAME)
-            * decoder->get(DecoderQuery::CHANNELS) * sizeof(int16_t);
+            * decoder->get(DecoderQuery::CHANNELS)) * sizeof(int16_t);
         return 0;
     }
     case SCE_AUDIODEC_TYPE_AAC: {
