@@ -272,6 +272,7 @@ void init_config(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path
 
     get_modules_list(gui, emuenv);
     config.stretch_the_display_area = emuenv.cfg.stretch_the_display_area;
+    config.fullscreen_hd_res_pixel_perfect = emuenv.cfg.fullscreen_hd_res_pixel_perfect;
     config_cpu_backend = set_cpu_backend(config.cpu_backend);
     current_aniso_filter_log = static_cast<int>(log2f(static_cast<float>(config.anisotropic_filtering)));
     max_aniso_filter_log = static_cast<int>(log2f(static_cast<float>(emuenv.renderer->get_max_anisotropic_filtering())));
@@ -374,10 +375,20 @@ static void save_config(GuiState &gui, EmuEnvState &emuenv) {
         emuenv.cfg.psn_signed_in = config.psn_signed_in;
     }
 
+    bool update_viewport_en = false;
+
+    if (emuenv.cfg.fullscreen_hd_res_pixel_perfect != config.fullscreen_hd_res_pixel_perfect) {
+        emuenv.cfg.fullscreen_hd_res_pixel_perfect = config.fullscreen_hd_res_pixel_perfect;
+        update_viewport_en = true;
+    }
+
     if (emuenv.cfg.stretch_the_display_area != config.stretch_the_display_area) {
         emuenv.cfg.stretch_the_display_area = config.stretch_the_display_area;
-        app::update_viewport(emuenv);
+        update_viewport_en = true;
     }
+
+    if (update_viewport_en)
+        app::update_viewport(emuenv);
 
     config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
 }
@@ -458,6 +469,7 @@ void set_config(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path)
     emuenv.renderer->res_multiplier = emuenv.cfg.current_config.resolution_multiplier;
     emuenv.renderer->set_anisotropic_filtering(emuenv.cfg.current_config.anisotropic_filtering);
     emuenv.renderer->set_stretch_display(emuenv.cfg.stretch_the_display_area);
+    emuenv.renderer->stretch_hd_pixel_perfect(emuenv.cfg.fullscreen_hd_res_pixel_perfect);
     emuenv.renderer->get_texture_cache()->set_replacement_state(emuenv.cfg.current_config.import_textures, emuenv.cfg.current_config.export_textures, emuenv.cfg.current_config.export_as_png);
     emuenv.renderer->set_async_compilation(emuenv.cfg.current_config.async_pipeline_compilation);
     emuenv.display.fps_hack = emuenv.cfg.current_config.fps_hack;
@@ -975,6 +987,9 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
         ImGui::Spacing();
         ImGui::Checkbox(lang.gui["apps_list_grid"].c_str(), &emuenv.cfg.apps_list_grid);
         SetTooltipEx(lang.gui["apps_list_grid_description"].c_str());
+        ImGui::SameLine();
+        ImGui::Checkbox(lang.gui["fullscreen_hd_res_pixel_perfect"].c_str(), &config.fullscreen_hd_res_pixel_perfect);
+        SetTooltipEx(lang.gui["fullscreen_hd_res_pixel_perfect_description"].c_str());
         if (!emuenv.cfg.apps_list_grid) {
             ImGui::Spacing();
             ImGui::SliderInt(lang.gui["icon_size"].c_str(), &emuenv.cfg.icon_size, 64, 128);
@@ -1216,10 +1231,11 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
     ImGui::SameLine(0, 20.f * SCALE.x);
     const auto is_apply = !emuenv.io.app_path.empty() && (!is_custom_config || (emuenv.app_path == emuenv.io.app_path));
     const auto is_reboot = (emuenv.renderer->current_backend != emuenv.backend_renderer) || (config.resolution_multiplier != emuenv.cfg.current_config.resolution_multiplier);
-    if (ImGui::Button(is_apply ? (is_reboot ? lang.main_window["save_reboot"].c_str() : lang.main_window["save_apply"].c_str()) : common.save_data.save["title"].c_str(), BUTTON_SIZE)) {
+    if (ImGui::Button(is_apply ? (is_reboot ? lang.main_window["save_reboot"].c_str() : lang.main_window["save_apply"].c_str()) : lang.main_window["save_close"].c_str(), BUTTON_SIZE)) {
         save_config(gui, emuenv);
         if (is_apply)
             set_config(gui, emuenv, emuenv.io.app_path);
+        show_settings_dialog = false;
     }
     SetTooltipEx(lang.main_window["keep_changes"].c_str());
 
