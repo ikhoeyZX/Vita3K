@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, windows-latest, macos-latest]
+        os: [ubuntu-22.04, windows-latest, macos-latest, windows-11-arm]
         config: [Release]
         version: [zip, appimage]
         include:
@@ -40,6 +40,14 @@ jobs:
                 C:\Users\runneradmin\AppData\Local\ccache
             extra_cmake_args: -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static-md
             cmake_preset: windows-ninja
+          - os: windows-11-arm
+            version: zip
+            cache_path: |
+                C:\vcpkg\installed
+                C:\vcpkg\packages
+                C:\Users\runneradmin\AppData\Local\ccache
+            extra_cmake_args: -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static-md
+            cmake_preset: windows-ninja
           - os: macos-latest
             version: zip
             cache_path: ~/Library/Caches/ccache
@@ -49,6 +57,8 @@ jobs:
           - os: macos-latest
             version: appimage
           - os: windows-latest
+            version: appimage
+          - os: windows-11-arm
             version: appimage
 
     steps:
@@ -74,6 +84,9 @@ jobs:
 
       - uses: ilammy/msvc-dev-cmd@v1
         if: matrix.os == 'windows-latest'
+
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: matrix.os == 'windows-11-arm'
  
       - uses: actions/cache@v4
         with:
@@ -88,6 +101,12 @@ jobs:
           choco install ccache
         if: matrix.os == 'windows-latest'
 
+      - name: Set up build environment (windows-11-arm)
+        run: |
+          vcpkg install zlib:arm64-windows-static-md boost-system:arm64-windows-static-md boost-filesystem:arm64-windows-static-md boost-program-options:arm64-windows-static-md boost-icl:arm64-windows-static-md boost-variant:arm64-windows-static-md curl:arm64-windows-static-md openssl:arm64-windows-static-md
+          choco install ccache
+        if: matrix.os == 'windows-11-arm'
+        
       - name: Set up SDL 2.30.11 (ubuntu-22.04)
         run: |
           SDL2VER=2.30.11
