@@ -272,13 +272,16 @@ elseif(WIN32)
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/external/discord_game_sdk/lib/x86_64/discord_game_sdk.dll" "$<TARGET_FILE_DIR:vita3k>")
 	endif()
 	if(EXISTS "${OPENSSL_ROOT_DIR}")
-		add_custom_command(
-		TARGET vita3k
-		POST_BUILD
                 if(ARM64)
+		   add_custom_command(
+		   TARGET vita3k
+		   POST_BUILD
 		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libssl-3-arm64.dll" "$<TARGET_FILE_DIR:vita3k>"
 		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libcrypto-3-arm64.dll" "$<TARGET_FILE_DIR:vita3k>")
 		else()
+                   add_custom_command(
+		   TARGET vita3k
+		   POST_BUILD
 		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libssl-3-x64.dll" "$<TARGET_FILE_DIR:vita3k>"
 		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libcrypto-3-x64.dll" "$<TARGET_FILE_DIR:vita3k>")
                 endif()
