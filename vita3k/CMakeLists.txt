@@ -187,7 +187,12 @@ if(APPLE)
 		add_custom_command(
 		TARGET vita3k
 		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/external/discord_game_sdk/lib/x86_64/discord_game_sdk.dylib" "$<TARGET_FILE_DIR:vita3k>/../Resources")
+                if(ARM64)
+	           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/external/discord_game_sdk/lib/arm64/discord_game_sdk.dylib" "$<TARGET_FILE_DIR:vita3k>/../Resources"
+	        else()
+		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/external/discord_game_sdk/lib/x86_64/discord_game_sdk.dylib" "$<TARGET_FILE_DIR:vita3k>/../Resources"
+                endif()
+                )
 	endif()
 	set_target_properties(vita3k PROPERTIES LINK_FLAGS "-rpath @loader_path/../Frameworks/ -rpath @loader_path/../Resources/ -ld64")
 	target_sources(vita3k PRIVATE Vita3K.icns)
@@ -246,7 +251,7 @@ elseif(LINUX)
 		TARGET vita3k
 		POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/external/discord_game_sdk/lib/x86_64/libdiscord_game_sdk.so" "$<TARGET_FILE_DIR:vita3k>")
-	endif()
+        endif()
 elseif(WIN32)
 	target_link_libraries(vita3k PRIVATE Version)
 	target_sources(vita3k PRIVATE resource.h Vita3K.ico Vita3K.rc Windows.manifest)
@@ -269,22 +274,25 @@ elseif(WIN32)
 		add_custom_command(
 		TARGET vita3k
 		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/external/discord_game_sdk/lib/x86_64/discord_game_sdk.dll" "$<TARGET_FILE_DIR:vita3k>")
-	endif()
-	if(EXISTS "${OPENSSL_ROOT_DIR}")
                 if(ARM64)
-		   add_custom_command(
-		   TARGET vita3k
-		   POST_BUILD
+		    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/external/discord_game_sdk/lib/x86_64/discord_game_sdk.dll" "$<TARGET_FILE_DIR:vita3k>"
+	        else()
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/external/discord_game_sdk/lib/x86_64/discord_game_sdk.dll" "$<TARGET_FILE_DIR:vita3k>"
+	        endif()
+                )
+        endif()
+	if(EXISTS "${OPENSSL_ROOT_DIR}")
+                add_custom_command(
+		TARGET vita3k
+		POST_BUILD
+                if(ARM64)
 		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libssl-3-arm64.dll" "$<TARGET_FILE_DIR:vita3k>"
-		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libcrypto-3-arm64.dll" "$<TARGET_FILE_DIR:vita3k>")
+		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libcrypto-3-arm64.dll" "$<TARGET_FILE_DIR:vita3k>"
 		else()
-                   add_custom_command(
-		   TARGET vita3k
-		   POST_BUILD
 		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libssl-3-x64.dll" "$<TARGET_FILE_DIR:vita3k>"
-		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libcrypto-3-x64.dll" "$<TARGET_FILE_DIR:vita3k>")
+		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libcrypto-3-x64.dll" "$<TARGET_FILE_DIR:vita3k>"
                 endif()
+		)
 	endif()
 endif()
 
