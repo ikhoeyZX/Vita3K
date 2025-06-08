@@ -275,8 +275,13 @@ elseif(WIN32)
 		add_custom_command(
 		TARGET vita3k
 		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libssl-3-x64.dll" "$<TARGET_FILE_DIR:vita3k>"
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libcrypto-3-x64.dll" "$<TARGET_FILE_DIR:vita3k>")
+                if(ARM64)
+		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libssl-3-arm64.dll" "$<TARGET_FILE_DIR:vita3k>"
+		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libcrypto-3-arm64.dll" "$<TARGET_FILE_DIR:vita3k>")
+		else()
+		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libssl-3-x64.dll" "$<TARGET_FILE_DIR:vita3k>"
+		   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENSSL_ROOT_DIR}/bin/libcrypto-3-x64.dll" "$<TARGET_FILE_DIR:vita3k>")
+                endif()
 	endif()
 endif()
 
