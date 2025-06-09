@@ -275,7 +275,7 @@ elseif(WIN32)
 		TARGET vita3k
 		POST_BUILD
                 if(ARM64)
-		    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/external/discord_game_sdk/lib/x86_64/discord_game_sdk.dll" "$<TARGET_FILE_DIR:vita3k>"
+		    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/external/discord_game_sdk/lib/arm64/discord_game_sdk.dll" "$<TARGET_FILE_DIR:vita3k>"
 	        else()
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/external/discord_game_sdk/lib/x86_64/discord_game_sdk.dll" "$<TARGET_FILE_DIR:vita3k>"
 	        endif()
