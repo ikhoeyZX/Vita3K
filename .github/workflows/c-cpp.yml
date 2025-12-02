@@ -61,9 +61,11 @@ jobs:
             version: appimage
           - os: windows-latest
             arch: arm64
+          - os: windows-latest
             version: appimage
           - os: windows-11-arm
             arch: x64
+          - os: windows-11-arm
             version: appimage
 
     steps:
