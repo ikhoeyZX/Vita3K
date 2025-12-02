@@ -130,11 +130,11 @@ jobs:
 
       - name: Set up linuxdeploy (ubuntu-22.04, appimage)
         run: |
-          if [[ ! -e linuxdeploy-arm64.AppImage ]]; then
-            curl -sLO https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-arm64.AppImage
+          if [[ ! -e  linuxdeploy-aarch64.AppImage  ]]; then
+            curl -sLO https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/ linuxdeploy-aarch64.AppImage
           fi
-          sudo cp -f linuxdeploy-arm64.AppImage /usr/local/bin/
-          sudo chmod +x /usr/local/bin/linuxdeploy-arm64.AppImage
+          sudo cp -f  linuxdeploy-aarch64.AppImage /usr/local/bin/
+          sudo chmod +x /usr/local/bin/ linuxdeploy-aarch64.AppImage
         if: matrix.os == 'ubuntu-22.04' && matrix.arch == 'arm64' && matrix.version == 'appimage'
 
       - name: Ccache setup
@@ -158,7 +158,7 @@ jobs:
         run: echo "build_variable=$(git rev-list HEAD --count)" >> $GITHUB_ENV
         if: matrix.os == 'ubuntu-22.04'
 
-      - name: Bundle Shared Objects
+      - name: Bundle Shared Objects x64
         id: bundle_shared_objects_x64
         run: |
             cd build/${{ matrix.cmake_preset }}/bin/${{ matrix.config }}
@@ -166,9 +166,10 @@ jobs:
             cp /usr/lib/x86_64-linux-gnu/libcrypto.so.3 ./libcrypto.so.3
         if: matrix.os == 'ubuntu-22.04' && matrix.arch == 'x64'
 
-      - name: Bundle Shared Objects
+      - name: Bundle Shared Objects arm64
         id: bundle_shared_objects_arm64
         run: |
+            sudo apt install openssl
             cd build/${{ matrix.cmake_preset }}/bin/${{ matrix.config }}
             cp /usr/lib/arm64-linux-gnu/libssl.so.3 ./libssl.so.3
             cp /usr/lib/arm64-linux-gnu/libcrypto.so.3 ./libcrypto.so.3
