@@ -131,7 +131,7 @@ jobs:
       - name: Set up linuxdeploy (ubuntu-22.04, appimage)
         run: |
           if [[ ! -e  linuxdeploy-aarch64.AppImage  ]]; then
-            curl -sLO https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/ linuxdeploy-aarch64.AppImage
+            curl -sLO https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-aarch64.AppImage
           fi
           sudo cp -f  linuxdeploy-aarch64.AppImage /usr/local/bin/
           sudo chmod +x /usr/local/bin/ linuxdeploy-aarch64.AppImage
