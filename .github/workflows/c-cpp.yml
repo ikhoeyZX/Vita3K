@@ -129,7 +129,7 @@ jobs:
       - name: Set up linuxdeploy (ubuntu-22.04, appimage)
         run: |
           if [[ ! -e linuxdeploy-x86_64.AppImage ]]; then
-            curl -sLO https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-x86_64.AppImage
+            wget -q https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-x86_64.AppImage
           fi
           sudo cp -f linuxdeploy-x86_64.AppImage /usr/local/bin/
           sudo chmod +x /usr/local/bin/linuxdeploy-x86_64.AppImage
@@ -138,9 +138,11 @@ jobs:
       - name: Set up linuxdeploy (ubuntu-22.04, appimage)
         run: |
           if [[ ! -e  linuxdeploy-aarch64.AppImage  ]]; then
-            curl -sLO https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-aarch64.AppImage
+            wget -q https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-aarch64.AppImage
           fi
+
           sudo cp -f  linuxdeploy-aarch64.AppImage /usr/local/bin/
+          dd if=/dev/zero of=linuxdeploy-aarch64.AppImage conv=notrunc bs=1 count=3 seek=8; \
           sudo chmod +x /usr/local/bin/linuxdeploy-aarch64.AppImage
         if: matrix.os == 'ubuntu-22.04' && matrix.arch == 'arm64' && matrix.version == 'appimage'
 
@@ -176,8 +178,8 @@ jobs:
       - name: Bundle Shared Objects arm64
         id: bundle_shared_objects_arm64
         run: |
-            ls -l usr/lib64/
-            ls -l usr/lib64/arm64-linux-gnu/
+            ls -l /usr/lib64/
+            ls -l /usr/lib64/arm64-linux-gnu/
             cd build/${{ matrix.cmake_preset }}/bin/${{ matrix.config }}
             cp /usr/lib64/arm64-linux-gnu/libssl.so.3 ./libssl.so.3
             cp /usr/lib64/arm64-linux-gnu/libcrypto.so.3 ./libcrypto.so.3
