@@ -169,7 +169,8 @@ jobs:
       - name: Bundle Shared Objects arm64
         id: bundle_shared_objects_arm64
         run: |
-            sudo apt install openssl
+            ls -l usr/lib/*ssl*
+            ls -l usr/lib/arm64-linux-gnu/
             cd build/${{ matrix.cmake_preset }}/bin/${{ matrix.config }}
             cp /usr/lib/arm64-linux-gnu/libssl.so.3 ./libssl.so.3
             cp /usr/lib/arm64-linux-gnu/libcrypto.so.3 ./libcrypto.so.3
