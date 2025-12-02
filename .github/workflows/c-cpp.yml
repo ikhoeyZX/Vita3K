@@ -134,7 +134,7 @@ jobs:
             curl -sLO https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-aarch64.AppImage
           fi
           sudo cp -f  linuxdeploy-aarch64.AppImage /usr/local/bin/
-          sudo chmod +x /usr/local/bin/ linuxdeploy-aarch64.AppImage
+          sudo chmod +x /usr/local/bin/linuxdeploy-aarch64.AppImage
         if: matrix.os == 'ubuntu-22.04' && matrix.arch == 'arm64' && matrix.version == 'appimage'
 
       - name: Ccache setup
@@ -169,7 +169,7 @@ jobs:
       - name: Bundle Shared Objects arm64
         id: bundle_shared_objects_arm64
         run: |
-            ls -l usr/lib/*ssl*
+            ls -l usr/lib/
             ls -l usr/lib/arm64-linux-gnu/
             cd build/${{ matrix.cmake_preset }}/bin/${{ matrix.config }}
             cp /usr/lib/arm64-linux-gnu/libssl.so.3 ./libssl.so.3
