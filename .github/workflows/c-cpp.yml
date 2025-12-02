@@ -25,9 +25,16 @@ jobs:
         arch: [x64, arm64]
         include:
           - os: ubuntu-22.04
+            arch: x64
             version: appimage
             cache_path: ~/.ccache
             extra_cmake_args: -DLINUXDEPLOY_COMMAND=/usr/local/bin/linuxdeploy-x86_64.AppImage
+            cmake_preset: linux-ninja-clang-appimage
+          - os: ubuntu-22.04
+            arch: arm64
+            version: appimage
+            cache_path: ~/.ccache
+            extra_cmake_args: -DLINUXDEPLOY_COMMAND=/usr/local/bin/linuxdeploy-aarch64.AppImage
             cmake_preset: linux-ninja-clang-appimage
           - os: ubuntu-22.04
             version: zip
