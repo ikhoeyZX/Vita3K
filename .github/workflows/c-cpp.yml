@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, windows-latest, windows-11-arm, macos-latest]
+        os: [ubuntu-22.04, ubuntu-22.04-arm, windows-latest, windows-11-arm, macos-latest]
         config: [Release]
         version: [zip, appimage]
         arch: [x64, arm64]
@@ -30,7 +30,7 @@ jobs:
             cache_path: ~/.ccache
             extra_cmake_args: -DLINUXDEPLOY_COMMAND=/usr/local/bin/linuxdeploy-x86_64.AppImage
             cmake_preset: linux-ninja-clang-appimage
-          - os: ubuntu-22.04
+          - os: ubuntu-22.04-arm
             arch: arm64
             version: appimage
             cache_path: ~/.ccache
@@ -81,6 +81,10 @@ jobs:
             arch: x64
           - os: windows-11-arm
             version: appimage
+          - os: ubuntu-22.04-arm
+            arch: x64
+          - os: ubuntu-22.04
+            arch: arm64
 
     steps:
       - uses: actions/checkout@v6
@@ -102,10 +106,10 @@ jobs:
           sudo add-apt-repository universe
           sudo apt update
           sudo apt -y install ccache libboost-filesystem1.83-dev libboost-program-options1.83-dev libboost-system1.83-dev libgtk-3-dev libsdl2-dev ninja-build libfuse2
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm'
 
       - uses: ilammy/msvc-dev-cmd@v1
-        if: matrix.os == 'windows-latest' && matrix.os == 'windows-11-arm'
+        if: matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
  
       - uses: actions/cache@v4
         with:
@@ -140,11 +144,10 @@ jobs:
           if [[ ! -e  linuxdeploy-aarch64.AppImage  ]]; then
             wget -q https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-aarch64.AppImage
           fi
-
           sudo cp -f  linuxdeploy-aarch64.AppImage /usr/local/bin/
           dd if=/dev/zero of=linuxdeploy-aarch64.AppImage conv=notrunc bs=1 count=3 seek=8; \
           sudo chmod +x /usr/local/bin/linuxdeploy-aarch64.AppImage
-        if: matrix.os == 'ubuntu-22.04' && matrix.arch == 'arm64' && matrix.version == 'appimage'
+        if: matrix.os == 'ubuntu-22.04-arm' && matrix.arch == 'arm64' && matrix.version == 'appimage'
 
       - name: Ccache setup
         run: ccache -z
@@ -165,7 +168,7 @@ jobs:
       - name: Set Build Variable
         shell: bash
         run: echo "build_variable=$(git rev-list HEAD --count)" >> $GITHUB_ENV
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm'
 
       - name: Bundle Shared Objects x64
         id: bundle_shared_objects_x64
@@ -183,7 +186,7 @@ jobs:
             cd build/${{ matrix.cmake_preset }}/bin/${{ matrix.config }}
             cp /usr/lib64/arm64-linux-gnu/libssl.so.3 ./libssl.so.3
             cp /usr/lib64/arm64-linux-gnu/libcrypto.so.3 ./libcrypto.so.3
-        if: matrix.os == 'ubuntu-22.04' && matrix.arch == 'arm64'
+        if: matrix.os == 'ubuntu-22.04-arm' && matrix.arch == 'arm64'
         
       - name: Ccache statistics
         run: ccache -s  
@@ -210,7 +213,7 @@ jobs:
           rm -rf ./*
           cp -f ../*AppImage* ./
           rm -f ../*AppImage*
-        if: matrix.os == 'ubuntu-22.04' && matrix.version == 'appimage'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm' && matrix.version == 'appimage'
 
       - uses: actions/upload-artifact@v5
         with:
