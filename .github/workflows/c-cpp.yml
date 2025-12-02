@@ -60,11 +60,11 @@ jobs:
           - os: macos-latest
             version: appimage
           - os: windows-latest
-            version: appimage
-          - os: windows-latest
             arch: arm64
+            version: appimage
           - os: windows-11-arm
             arch: x64
+            version: appimage
 
     steps:
       - uses: actions/checkout@v6
