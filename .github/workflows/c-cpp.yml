@@ -59,9 +59,16 @@ jobs:
             extra_cmake_args: -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=arm64-windows-static-md
             cmake_preset: windows-ninja
           - os: macos-latest
+            arch: x64
             version: zip
             cache_path: ~/Library/Caches/ccache
             extra_cmake_args: -DCMAKE_OSX_ARCHITECTURES="x86_64" -DFORCE_BUILD_OPENSSL_MAC=ON -DVITA3K_FORCE_CUSTOM_BOOST=ON
+            cmake_preset: macos-ninja
+          - os: macos-latest
+            arch: arm64
+            version: zip
+            cache_path: ~/Library/Caches/ccache
+            extra_cmake_args: -DCMAKE_OSX_ARCHITECTURES="arm64" -DFORCE_BUILD_OPENSSL_MAC=ON -DVITA3K_FORCE_CUSTOM_BOOST=ON
             cmake_preset: macos-ninja
         exclude:
           - os: macos-latest
@@ -169,11 +176,11 @@ jobs:
       - name: Bundle Shared Objects arm64
         id: bundle_shared_objects_arm64
         run: |
-            ls -l usr/lib/
-            ls -l usr/lib/arm64-linux-gnu/
+            ls -l usr/lib64/
+            ls -l usr/lib64/arm64-linux-gnu/
             cd build/${{ matrix.cmake_preset }}/bin/${{ matrix.config }}
-            cp /usr/lib/arm64-linux-gnu/libssl.so.3 ./libssl.so.3
-            cp /usr/lib/arm64-linux-gnu/libcrypto.so.3 ./libcrypto.so.3
+            cp /usr/lib64/arm64-linux-gnu/libssl.so.3 ./libssl.so.3
+            cp /usr/lib64/arm64-linux-gnu/libcrypto.so.3 ./libcrypto.so.3
         if: matrix.os == 'ubuntu-22.04' && matrix.arch == 'arm64'
         
       - name: Ccache statistics
@@ -205,7 +212,7 @@ jobs:
 
       - uses: actions/upload-artifact@v5
         with:
-          name: vita3k-${{ env.git_short_sha }}-${{ matrix.version }}-${{ matrix.os }}
+          name: vita3k-${{ env.git_short_sha }}-${{ matrix.version }}-${{ matrix.os }}-${{ matrix.arch }}
           # path is set up to be <binary_dir>/bin/<config_type> since that's how multi-config
           # generators work on CMake
           path: build/${{ matrix.cmake_preset }}/bin/${{ matrix.config }}
