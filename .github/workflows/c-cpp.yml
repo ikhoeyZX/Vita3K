@@ -117,6 +117,7 @@ jobs:
           key: cache-${{ matrix.os }}-${{ matrix.config }}-${{ github.sha }}
           restore-keys: |
             cache-${{ matrix.os }}-${{ matrix.config }}-${{ github.sha }}
+          if: matrix.os != 'ubuntu-22.04-arm'
 
       - name: Set up build environment (windows-latest x86_64)
         run: |
