@@ -116,7 +116,7 @@ jobs:
           path: ${{ matrix.cache_path }}
           key: cache-${{ matrix.os }}-${{ matrix.config }}-${{ github.sha }}
           restore-keys: |
-            cache-${{ matrix.os }}-${{ matrix.config }}-
+            cache-${{ matrix.os }}-${{ matrix.config }}-${{ github.sha }}
 
       - name: Set up build environment (windows-latest x86_64)
         run: |
