@@ -181,8 +181,6 @@ jobs:
       - name: Bundle Shared Objects arm64
         id: bundle_shared_objects_arm64
         run: |
-            ls -l /usr/lib64/
-            ls -l /usr/lib64/arm64-linux-gnu/
             cd build/${{ matrix.cmake_preset }}/bin/${{ matrix.config }}
             cp /usr/lib64/arm64-linux-gnu/libssl.so.3 ./libssl.so.3
             cp /usr/lib64/arm64-linux-gnu/libcrypto.so.3 ./libcrypto.so.3
@@ -206,14 +204,14 @@ jobs:
           rm -rf Vita3K.app
         if: matrix.os == 'macos-latest'
 
-      - name: Clean appimage build (ubuntu-22.04, appimage)
-        run: |
-          cd build/${{ matrix.cmake_preset }}/bin/${{ matrix.config }}
-          cp -f *AppImage* ../
-          rm -rf ./*
-          cp -f ../*AppImage* ./
-          rm -f ../*AppImage*
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm' && matrix.version == 'appimage'
+#      - name: Clean appimage build (ubuntu-22.04, appimage)
+#        run: |
+#          cd build/${{ matrix.cmake_preset }}/bin/${{ matrix.config }}
+#          cp -f *AppImage* ../
+#          rm -rf ./*
+#          cp -f ../*AppImage* ./
+#          rm -f ../*AppImage*
+#        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'ubuntu-22.04-arm' && matrix.version == 'appimage'
 
       - uses: actions/upload-artifact@v5
         with:
