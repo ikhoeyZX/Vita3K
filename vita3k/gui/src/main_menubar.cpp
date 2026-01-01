@@ -80,8 +80,8 @@ static void draw_emulation_menu(GuiState &gui, EmuEnvState &emuenv) {
     if (ImGui::BeginMenu(lang["title"].c_str())) {
         const auto app_list_is_empty = gui.time_apps[emuenv.io.user_id].empty();
         ImGui::SetNextWindowSize(ImVec2(!app_list_is_empty ? 480.f * SCALE.x : 0.f, 0.f));
-        ImGui::SetWindowFontScale(RES_SCALE.x);
         if (ImGui::BeginMenu(lang["last_apps_used"].c_str())) {
+            ImGui::SetWindowFontScale(RES_SCALE.x);
             if (!app_list_is_empty) {
                 for (size_t i = 0; i < std::min<size_t>(8, gui.time_apps[emuenv.io.user_id].size()); i++) {
                     const auto &time_app = gui.time_apps[emuenv.io.user_id][i];
@@ -135,11 +135,9 @@ static void draw_controls_menu(GuiState &gui) {
     auto &lang = gui.lang.main_menubar.controls;
     if (ImGui::BeginMenu(lang["title"].c_str())) {
 #ifdef __ANDROID__
-        const char *controls_name = "Overlay";
-#else
-        const char *controls_name = lang["keyboard_controls"].c_str();
+        ImGui::MenuItem(gui.lang.overlay["title"].c_str(), nullptr, &gui.controls_menu.overlay_dialog);
 #endif
-        ImGui::MenuItem(controls_name, nullptr, &gui.controls_menu.controls_dialog);
+        ImGui::MenuItem(lang["keyboard_controls"].c_str(), nullptr, &gui.controls_menu.controls_dialog);
         ImGui::MenuItem(gui.lang.controllers["title"].c_str(), nullptr, &gui.controls_menu.controllers_dialog);
         ImGui::EndMenu();
     }
