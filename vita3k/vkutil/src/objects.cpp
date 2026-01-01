@@ -15,6 +15,8 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+#include <renderer/vulkan/state.h>
+
 #include "vkutil/objects.h"
 
 #include "vkutil/vkutil.h"
@@ -103,7 +105,7 @@ void Image::init_image(vk::ImageUsageFlags usage, vk::ComponentMapping mapping, 
     if (!(usage & view_usages))
         return;
 
-    vk::ImageSubresourceRange range = (format == vk::Format::eD32SfloatS8Uint) ? vkutil::ds_subresource_range : vkutil::color_subresource_range;
+    vk::ImageSubresourceRange range = (format == deep_stencil_use) ? vkutil::ds_subresource_range : vkutil::color_subresource_range;
     vk::ImageViewCreateInfo view_info{
         .image = image,
         .viewType = vk::ImageViewType::e2D,
