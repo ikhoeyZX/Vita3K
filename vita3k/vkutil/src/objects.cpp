@@ -15,8 +15,6 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#include "renderer/vulkan/state.h"
-
 #include "vkutil/objects.h"
 
 #include "vkutil/vkutil.h"
@@ -79,8 +77,8 @@ Image::~Image() {
     destroy();
 }
 
-void Image::init_image(vk::ImageUsageFlags usage, vk::ComponentMapping mapping, const vk::ImageCreateFlags image_create_flags, const void *pNext) {
-    vk::ImageCreateInfo image_info{
+void Image::init_image(vk::ImageUsageFlags usage, vk::ComponentMapping mapping, const vk::ImageCreateFlags image_create_flags, const void *pNext, vk::Format stencil) {
+     vk::ImageCreateInfo image_info{
         .pNext = pNext,
         .flags = image_create_flags,
         .imageType = vk::ImageType::e2D,
@@ -105,7 +103,7 @@ void Image::init_image(vk::ImageUsageFlags usage, vk::ComponentMapping mapping, 
     if (!(usage & view_usages))
         return;
 
-    vk::ImageSubresourceRange range = (format == state.deep_stencil_use) ? vkutil::ds_subresource_range : vkutil::color_subresource_range;
+    vk::ImageSubresourceRange range = (format == stencil) ? vkutil::ds_subresource_range : vkutil::color_subresource_range;
     vk::ImageViewCreateInfo view_info{
         .image = image,
         .viewType = vk::ImageViewType::e2D,
