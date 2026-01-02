@@ -10,4 +10,4 @@ add_library(
 
 target_include_directories(vkutil PUBLIC include)
 target_link_libraries(vkutil PUBLIC vulkan vma)
-target_link_libraries(vkutil PRIVATE renderer util)
+target_link_libraries(vkutil PRIVATE util)
