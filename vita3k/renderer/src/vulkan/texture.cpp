@@ -278,7 +278,7 @@ bool VKTextureCache::init(const bool hashless_texture_cache, const fs::path &tex
     const vk::FormatProperties astc_support = state.physical_device.getFormatProperties(vk::Format::eAstc4x4SrgbBlock);
     support_astc = static_cast<bool>(astc_support.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImage);
 
-    LOG_TRACE("support_d24u8_depth_linear_filtering : {}", support_depth_linear_filtering);
+    LOG_TRACE("support_depth_linear_filtering : {}", support_depth_linear_filtering);
     LOG_TRACE("support_x8d24 : {}", support_x8d24);
     LOG_TRACE("support_e5rgb9 : {}", support_e5rgb9);
     LOG_TRACE("support_a2rgb10 : {}", support_a2rgb10);
