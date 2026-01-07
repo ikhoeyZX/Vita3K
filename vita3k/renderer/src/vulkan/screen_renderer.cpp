@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2026 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -70,8 +70,9 @@ bool ScreenRenderer::setup() {
     // usefull because some device crashed if it's not supported
     const vk::FormatProperties d24u8_support = state.physical_device.getFormatProperties(vk::Format::eD24UnormS8Uint);
     const vk::FormatProperties d32u8_support = state.physical_device.getFormatProperties(vk::Format::eD32SfloatS8Uint);
+    
     bool support_d24u8 = static_cast<bool>(d24u8_support.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment);
-    bool support_d32u8 = static_cast<bool>(x8d24_support.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment);
+    bool support_d32u8 = static_cast<bool>(d32u8_support.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment);
     
     for (const auto &format : surface_formats) {
         // actually we don't care that much because we will just be copying what the game rendered
@@ -92,8 +93,7 @@ bool ScreenRenderer::setup() {
     }else if(support_d24u8){
         state.deep_stencil_use = vk::Format::eD24UnormS8Uint;
     }else{
-        // potato or some early vulkan 1.0
-        LOG_WARN_ONCE("Your device doesn't support medium deep stencil quality");
+        LOG_WARN_ONCE("Your device doesn't support linear filtering");
         state.deep_stencil_use = vk::Format::eD16UnormS8Uint;
     }
 
