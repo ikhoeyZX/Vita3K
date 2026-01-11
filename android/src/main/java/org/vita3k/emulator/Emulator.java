@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.Settings;
@@ -14,6 +15,7 @@ import android.system.ErrnoException;
 import android.system.Os;
 import android.view.Surface;
 import android.view.ViewGroup;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.Keep;
@@ -101,6 +103,26 @@ public class Emulator extends SDLActivity
         }
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        hideSystemBars();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        hideSystemBars();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideSystemBars();
+        }
+    }
+
     @Keep
     public void restartApp(String app_path, String exec_path, String exec_args){
         ArrayList<String> args = new ArrayList<>();
@@ -129,9 +151,10 @@ public class Emulator extends SDLActivity
         ProcessPhoenix.triggerRebirth(getContext(), restart_intent);
     }
 
-    static final int PICKER_DIALOG_CODE = 545;
-    static final int STORAGE_MANAGER_FILE_DIALOG_CODE = 546;
-    static final int STORAGE_MANAGER_FOLDER_DIALOG_CODE = 547;
+    static final int FILE_DIALOG_CODE = 545;
+    static final int FOLDER_DIALOG_CODE = 546;
+    static final int STORAGE_MANAGER_FILE_DIALOG_CODE = 547;
+    static final int STORAGE_MANAGER_FOLDER_DIALOG_CODE = 548;
 
     private boolean ensureStoragePermission(int requestCode) {
         // If running Android 10-, SDL should have already asked for read and write permissions
@@ -155,7 +178,7 @@ public class Emulator extends SDLActivity
                 .putExtra(Intent.EXTRA_LOCAL_ONLY, true);
 
         intent = Intent.createChooser(intent, "Choose a file");
-        startActivityForResult(intent, PICKER_DIALOG_CODE);
+        startActivityForResult(intent, FILE_DIALOG_CODE);
     }
 
     private boolean isStorageManagerEnabled(){
@@ -175,17 +198,14 @@ public class Emulator extends SDLActivity
                 .putExtra(Intent.EXTRA_LOCAL_ONLY, true);
 
         intent = Intent.createChooser(intent, "Choose a folder");
-        startActivityForResult(intent, PICKER_DIALOG_CODE);
+        startActivityForResult(intent, FOLDER_DIALOG_CODE);
     }
 
-    private String resolveUriToPath(Intent data) {
+    private String resolveUriToPath(Uri result_uri) {
         String result_path = "";
-        int result_fd = -1;
-        Uri result_uri = data.getData();
 
         try (ParcelFileDescriptor file_descr = getContentResolver().openFileDescriptor(result_uri, "r")) {
-            result_fd = file_descr.detachFd();
-            result_path = Os.readlink("/proc/self/fd/" + result_fd);
+            result_path = Os.readlink("/proc/self/fd/" + file_descr.getFd());
 
             // replace /mnt/user/{id} with /storage
             if (result_path.startsWith("/mnt/user/")) {
@@ -216,12 +236,22 @@ public class Emulator extends SDLActivity
                     filedialogReturn("");
                 break;
             // --- PICKER ---
-            case PICKER_DIALOG_CODE: {
-                if (resultCode == RESULT_OK) {
-                    String res = resolveUriToPath(data);
-                    if (res != null)
-                        filedialogReturn(res);
+            case FILE_DIALOG_CODE:
+            case FOLDER_DIALOG_CODE: {
+                if (resultCode != RESULT_OK) {
+                    filedialogReturn("");
+                    break;
                 }
+                // get uri from result
+                Uri result_uri = data.getData();
+
+                // for folder picker, convert to tree uri
+                if (requestCode == FOLDER_DIALOG_CODE)
+                    result_uri = DocumentFile.fromTreeUri(getApplicationContext(), result_uri).getUri();
+
+                // resolve uri to path
+                String res = resolveUriToPath(result_uri);
+                filedialogReturn(res != null ? res : "");
                 break;
             }
         }
@@ -315,4 +345,15 @@ public class Emulator extends SDLActivity
     }
 
     public native void filedialogReturn(String result_path);
+
+    private void hideSystemBars() {
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        );
+    }
 }

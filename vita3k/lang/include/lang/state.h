@@ -175,7 +175,8 @@ struct LangState {
             { "manual", "Manual" },
             { "update", "Update" },
             { "update_history", "Update History" },
-            { "history_version", "Version {}" }
+            { "history_version", "Version {}" },
+            { "other", "Other" },
         };
         std::map<std::string, std::string> deleting = {
             { "app_delete", "This application and all related data, including saved data, will be deleted." },
@@ -196,6 +197,9 @@ struct LangState {
             { "size", "Size" },
             { "version", "Version" },
             { "title_id", "Title ID" },
+            { "category", "Category" },
+            { "gd", "Game Digital Application" },
+            { "gp", "Game Patch" },
             { "last_time_used", "Last time used" },
             { "time_used", "Time used" },
             { "never", "Never" }
@@ -206,6 +210,9 @@ struct LangState {
             { "time_used_hours", "{}h:{}m:{}s" },
             { "time_used_days", "{}d:{}h:{}m:{}s" },
             { "time_used_weeks", "{}w:{}d:{}h:{}m:{}s" }
+        };
+        std::map<std::string, std::string> other = {
+            { "reset_last_time_played", "Reset Last Time Played" }
         };
     };
     AppContext app_context;
@@ -310,7 +317,8 @@ struct LangState {
         { "miscellaneous", "Miscellaneous" },
         { "toggle_texture_replacement", "Toggle Texture Replacement" },
         { "take_screenshot", "Take A Screenshot" },
-        { "error_duplicate_key", "The key is used for other bindings or it is reserved." }
+        { "error_duplicate_key", "The key is used for other bindings or it is reserved." },
+        { "reset_controls_binding", "Reset Controls Binding" }
     };
     std::map<std::string, std::string> game_data = {
         { "app_close", "The following application will close." },
@@ -525,8 +533,8 @@ struct LangState {
             { "title", "Settings" },
             { "save_reboot", "Save & Reboot" },
             { "save_apply", "Save & Apply" },
-            { "keep_changes", "Click on Save to keep your changes." },
-            { "save_close", "Save & Close" }
+            { "save_close", "Save & Close" },
+            { "keep_changes", "Click on Save to keep your changes." }
         };
         std::map<std::string, std::string> core = {
             { "title", "Core" },
@@ -555,6 +563,7 @@ struct LangState {
             { "gpu", "GPU (Reboot to apply)" },
             { "select_gpu", "Select the GPU Vita3K should run on." },
             { "add_custom_driver", "Add custom driver" },
+            { "download_custom_driver", "Download Custom Driver" },
             { "remove_custom_driver", "Remove custom driver" },
             { "standard", "Standard" },
             { "high", "High" },
