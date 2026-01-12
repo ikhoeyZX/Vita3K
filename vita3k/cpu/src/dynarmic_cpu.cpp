@@ -21,11 +21,11 @@
 #include <util/bit_cast.h>
 #include <util/log.h>
 
+#include <mem/state.h>
 #include <mem/ptr.h>
 
-#include <dynarmic/frontend/A32/a32_ir_emitter.h>
+//#include <dynarmic/frontend/A32/a32_ir_emitter.h>
 #include <dynarmic/interface/A32/coprocessor.h>
-#include <dynarmic/interface/exclusive_monitor.h>
 
 #include <memory>
 #include <optional>
@@ -122,9 +122,9 @@ public:
     }
 
     void PreCodeTranslationHook(bool is_thumb, Dynarmic::A32::VAddr pc, Dynarmic::A32::IREmitter &ir) override {
-        if (cpu->log_code) {
-            ir.CallHostFunction(&TraceInstruction, ir.Imm64((uint64_t)this), ir.Imm64(pc), ir.Imm64(is_thumb));
-        }
+       // if (cpu->log_code) {
+       //     ir.CallHostFunction(&TraceInstruction, ir.Imm64((uint64_t)this), ir.Imm64(pc), ir.Imm64(is_thumb));
+       // }
     }
 
     template <typename T>
@@ -263,7 +263,6 @@ public:
         case Dynarmic::A32::Exception::SendEvent:
         case Dynarmic::A32::Exception::SendEventLocal:
         case Dynarmic::A32::Exception::WaitForEvent:
-            break;
         case Dynarmic::A32::Exception::Yield:
             break;
         case Dynarmic::A32::Exception::UndefinedInstruction:
@@ -302,30 +301,61 @@ std::unique_ptr<Dynarmic::A32::Jit> DynarmicCPU::make_jit() {
     Dynarmic::A32::UserConfig config{};
     config.arch_version = Dynarmic::A32::ArchVersion::v7;
     config.callbacks = cb.get();
-    if (parent->mem->use_page_table) {
-        config.page_table = (log_mem || !cpu_opt) ? nullptr : reinterpret_cast<decltype(config.page_table)>(parent->mem->page_table.get());
+    // disable it because it make memory mapping crash
+/*    if (parent->mem->use_page_table) {
+        config.page_table = (log_mem || !cpu_opt) ? nullptr : std::bit_cast<decltype(config.page_table)>(parent->mem->page_table.get());
         config.absolute_offset_page_table = true;
-    } else if (!log_mem && cpu_opt) {
-        config.fastmem_pointer = std::bit_cast<uintptr_t>(parent->mem->memory.get());
+        config.detect_misaligned_access_via_page_table = 4;
+        config.only_detect_misalignment_via_page_table_on_page_boundary = true;
     }
+*/
+
+    if (!log_mem && cpu_opt) {
+         config.fastmem_exclusive_access = true; 
+         config.recompile_on_exclusive_fastmem_failure = true;
+         config.fastmem_pointer = std::optional<uintptr_t>(reinterpret_cast<uintptr_t>(parent->mem->memory.get()));
+       // config.fastmem_pointer = std::bit_cast<uintptr_t>(parent->mem->memory.get());
+    }else{
+         config.fastmem_pointer = std::optional<uintptr_t>(std::nullopt);
+         config.fastmem_exclusive_access = false; // if this and below set true native buffer works but only 1-3 fps, weird
+         config.recompile_on_exclusive_fastmem_failure = false; // this one
+    }
+    
+    config.optimizations = cpu_opt ? Dynarmic::all_safe_optimizations : Dynarmic::no_optimizations;  
     config.hook_hint_instructions = true;
-    config.enable_cycle_counting = false;
     config.global_monitor = monitor;
     config.coprocessors[15] = cp15;
     config.processor_id = core_id;
-    config.optimizations = cpu_opt ? Dynarmic::all_safe_optimizations : Dynarmic::no_optimizations;
-    config.enable_cycle_counting = false;
-
+    config.wall_clock_cntpct = true;
+    
+    if(cpu_unsafe){
+        config.unsafe_optimizations = true;
+        config.optimizations |= Dynarmic::OptimizationFlag::Unsafe_UnfuseFMA;
+        config.optimizations |= Dynarmic::OptimizationFlag::Unsafe_IgnoreStandardFPCRValue;
+        config.optimizations |= Dynarmic::OptimizationFlag::Unsafe_InaccurateNaN;
+        config.optimizations |= Dynarmic::OptimizationFlag::Unsafe_IgnoreGlobalMonitor;
+    } else {
+        config.unsafe_optimizations = false;
+    }
+    
+    // Code cache size
+#if defined __aarch64__
+    config.code_cache_size =  128 * 1024 * 1024;
+#else
+    config.code_cache_size =  512 * 1024 * 1024;
+#endif
+    
     return std::make_unique<Dynarmic::A32::Jit>(config);
 }
 
-DynarmicCPU::DynarmicCPU(CPUState *state, std::size_t processor_id, Dynarmic::ExclusiveMonitor *monitor, bool cpu_opt)
+DynarmicCPU::DynarmicCPU(CPUState *state, std::size_t processor_id, Dynarmic::ExclusiveMonitor *monitor, bool cpu_opt, bool cpu_unsafe)
     : parent(state)
     , cb(std::make_unique<ArmDynarmicCallback>(*state, *this))
     , cp15(std::make_shared<ArmDynarmicCP15>())
     , monitor(monitor)
     , core_id(processor_id)
-    , cpu_opt(cpu_opt) {
+    , cpu_opt(cpu_opt)
+    , cpu_unsafe(cpu_unsafe) {
     jit = make_jit();
 }
 
@@ -339,8 +369,7 @@ int DynarmicCPU::run() {
     Dynarmic::HaltReason halt_reason;
     do {
         halt_reason = jit->Run();
-    } while ((halt_reason == Dynarmic::HaltReason::Step) || (halt_reason == Dynarmic::HaltReason::CacheInvalidation));
-
+    } while (halt_reason == Dynarmic::HaltReason::Step || halt_reason == Dynarmic::HaltReason::CacheInvalidation);
     return halted;
 }
 
@@ -450,7 +479,8 @@ CPUContext DynarmicCPU::save_context() {
     CPUContext ctx;
     ctx.cpu_registers = jit->Regs();
     static_assert(sizeof(ctx.fpu_registers) == sizeof(jit->ExtRegs()));
-    memcpy(ctx.fpu_registers.data(), jit->ExtRegs().data(), sizeof(ctx.fpu_registers));
+    // memcpy(ctx.fpu_registers.data(), jit->ExtRegs().data(), sizeof(ctx.fpu_registers));
+    memmove(ctx.fpu_registers.data(), jit->ExtRegs().data(), sizeof(ctx.fpu_registers));
     ctx.fpscr = jit->Fpscr();
     ctx.cpsr = jit->Cpsr();
 
