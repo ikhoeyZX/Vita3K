@@ -1,5 +1,5 @@
 ﻿// Vita3K emulator project
-// Copyright (C) 2025 Vita3K team
+// Copyright (C) 2026 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -240,6 +240,9 @@ void destroy_bgm_player() {
         std::lock_guard<std::mutex> lock(at9_stream.mutex);
         at9_stream.stop_requested = true;
     }
+
+    // Wake up the playback thread if it's waiting on init_cv
+    at9_stream.init_cv.notify_one();
 
     // Wait for the playback handle thread to finish
     if (playback_handle_thread.joinable())

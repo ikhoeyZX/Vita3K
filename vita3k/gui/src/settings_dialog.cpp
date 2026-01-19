@@ -1,5 +1,5 @@
 ﻿// Vita3K emulator project
-// Copyright (C) 2025 Vita3K team
+// Copyright (C) 2026 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -952,8 +952,8 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
         ImGui::Checkbox(lang.audio["enable_ngs_support"].c_str(), &config.ngs_enable);
         SetTooltipEx(lang.audio["ngs_description"].c_str());
         ImGui::Spacing();
-        ImGui::SliderInt("Bgm Volume", &emuenv.cfg.bgm_volume, 0, 100, "%d %%", ImGuiSliderFlags_AlwaysClamp);
-        SetTooltipEx("Adjusts the background music volume percentage of the theme");
+        ImGui::SliderInt(lang.audio["bgm_volume"].c_str(), &emuenv.cfg.bgm_volume, 0, 100, "%d %%", ImGuiSliderFlags_AlwaysClamp);
+        SetTooltipEx(lang.audio["bgm_volume_description"].c_str());
         ImGui::Separator();
         ImGui::Spacing();
         ImGui::EndTabItem();
@@ -1063,10 +1063,6 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
             SetTooltipEx(lang.emulator["reset_emu_path_description"].c_str());
         }
         ImGui::Spacing();
-#ifdef __ANDROID__
-        ImGui::TextColored(GUI_COLOR_TEXT, "%s", lang.emulator["storage_folder_permissions"].c_str());
-        ImGui::Spacing();
-#endif
         ImGui::Separator();
         TextColoredCentered(GUI_COLOR_TEXT_TITLE, lang.emulator["custom_config_settings"].c_str());
         ImGui::Spacing();

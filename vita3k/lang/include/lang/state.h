@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2025 Vita3K team
+// Copyright (C) 2026 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -334,7 +334,6 @@ struct LangState {
         { "pinch_modifier", "Pinch modifier" },
         { "alternate_pinch_in", "Alternate pinch in key" },
         { "alternate_pinch_out", "Alternate pinch out/stretch key" },
-
         { "error_duplicate_key", "The key is used for other bindings or it is reserved." },
         { "reset_controls_binding", "Reset Controls Binding" }
     };
@@ -376,6 +375,8 @@ struct LangState {
         { "completed_setup", "You have now completed initial setup.\nYour Vita3K system is ready!" },
         { "select_language", "Select a language." },
         { "select_pref_path", "Select a pref path." },
+        { "storage_file_permissions", "Vita3K requires full file access to work properly, tap 'Grant access' to continue." },
+        { "grant_access", "Grant Access" },
         { "current_emu_path", "Current emulator path" },
         { "change_emu_path", "Change Emulator Path" },
         { "reset_emu_path", "Reset Emulator Path" },
@@ -632,7 +633,9 @@ struct LangState {
             { "audio_volume", "Audio Volume" },
             { "audio_volume_description", "Adjusts the volume percentage of all audio outputs." },
             { "enable_ngs_support", "Enable NGS support" },
-            { "ngs_description", "Uncheck the box to disable support for advanced audio library NGS." }
+            { "ngs_description", "Uncheck the box to disable support for advanced audio library NGS." },
+            { "bgm_volume", "Bgm Volume" },
+            { "bgm_volume_description", "Adjusts the background music volume percentage of the theme." }
         };
         std::map<std::string, std::string> system = {
             { "title", "System" },
@@ -697,7 +700,6 @@ struct LangState {
             { "change_emu_path_description", "Change Vita3K emulator folder path.\nYou will need to move your old folder to the new location manually." },
             { "reset_emu_path", "Reset Emulator Path" },
             { "reset_emu_path_description", "Reset Vita3K emulator path to the default.\nYou will need to move your old folder to the new location manually." },
-            { "storage_folder_permissions", "Using a different path requires additional permissions" },
             { "custom_config_settings", "Custom Config Settings" },
             { "clear_custom_config", "Clear Custom Config" },
             { "screenshot_image_type", "screenshot Image Type" },
@@ -828,7 +830,6 @@ struct LangState {
         { "user_deleted", "User deleted." },
         { "choose_avatar", "Choose Avatar" },
         { "reset_avatar", "Reset Avatar" },
-        { "name", "Name" },
         { "user", "User" },
         { "confirm", "Confirm" },
         { "automatic_user_login", "Automatic User Login" }
