@@ -156,7 +156,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     }
   }
 
-  public void setState(int overlay_mask){
+  public void setState(int overlay_mask) {
     boolean was_showing = mOverlayMask != 0;
 
     if(hide_overlay && mOverlayMask == 4) {
@@ -165,7 +165,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
         mOverlayMask = 4;
         refreshControls();
         invalidate();
-    } else if (mOverlayMask != overlay_mask){
+    } else if (mOverlayMask != overlay_mask) {
         mOverlayMask = overlay_mask;
         invalidate();
     }
@@ -213,7 +213,6 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     }
 
     if (!hide_overlay){
-
         for (InputOverlayDrawableDpad dpad : overlayDpads)
         {
           dpad.draw(canvas);
@@ -931,10 +930,6 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     {
         vitaDefaultOverlay();
     }
-public static final int hide = 50;
-    SharedPreferences.Editor sPrefsEditor = mPreferences.edit();
-    sPrefsEditor.putBoolean("OverlayInit", true);
-    sPrefsEditor.apply();
   }
 
   private void vitaDefaultOverlay()
