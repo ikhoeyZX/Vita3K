@@ -183,6 +183,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     }
 
     invalidate();
+  }
 
   public void setSurfacePosition(Rect rect)
   {
