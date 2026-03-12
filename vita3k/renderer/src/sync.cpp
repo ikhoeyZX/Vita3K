@@ -99,7 +99,8 @@ void finish(State &state, Context *context) {
     // Wait for the VK wait thread to finish processing all pending requests.
     // Push a dummy request then wait for the queue to drain, ensuring the last
     // real request has been fully processed (not just dequeued).
-    if (state.current_backend == Backend::Vulkan) {
+    // this function cause hungwhen memory mapping disabled
+    if (state.current_backend == Backend::Vulkan && state.features.enable_memory_mapping) {
         auto &vk_state = static_cast<vulkan::VKState &>(state);
         vk_state.request_queue.push(vulkan::CallbackRequest{ nullptr });
         vk_state.request_queue.wait_empty();
