@@ -23,9 +23,11 @@
 
 #include <mem/ptr.h>
 
+#if !defined(__AARCH64__)
 #include <dynarmic/frontend/A32/a32_ir_emitter.h>
-#include <dynarmic/interface/A32/coprocessor.h>
 #include <dynarmic/interface/exclusive_monitor.h>
+#endif
+#include <dynarmic/interface/A32/coprocessor.h>
 
 #include <memory>
 #include <optional>
@@ -122,9 +124,11 @@ public:
     }
 
     void PreCodeTranslationHook(bool is_thumb, Dynarmic::A32::VAddr pc, Dynarmic::A32::IREmitter &ir) override {
+#if !defined(__AARCH64__)
         if (cpu->log_code) {
             ir.CallHostFunction(&TraceInstruction, ir.Imm64((uint64_t)this), ir.Imm64(pc), ir.Imm64(is_thumb));
         }
+#endif
     }
 
     template <typename T>
@@ -263,7 +267,6 @@ public:
         case Dynarmic::A32::Exception::SendEvent:
         case Dynarmic::A32::Exception::SendEventLocal:
         case Dynarmic::A32::Exception::WaitForEvent:
-            break;
         case Dynarmic::A32::Exception::Yield:
             break;
         case Dynarmic::A32::Exception::UndefinedInstruction:
@@ -302,20 +305,42 @@ std::unique_ptr<Dynarmic::A32::Jit> DynarmicCPU::make_jit() {
     Dynarmic::A32::UserConfig config{};
     config.arch_version = Dynarmic::A32::ArchVersion::v7;
     config.callbacks = cb.get();
+    
+#if !defined(__AARCH64__)
     if (parent->mem->use_page_table) {
-        config.page_table = (log_mem || !cpu_opt) ? nullptr : reinterpret_cast<decltype(config.page_table)>(parent->mem->page_table.get());
+        config.page_table = (log_mem || !cpu_opt) ? nullptr : std::bit_cast<decltype(config.page_table)>(parent->mem->page_table.get());
         config.absolute_offset_page_table = true;
-    } else if (!log_mem && cpu_opt) {
-        config.fastmem_pointer = std::bit_cast<uintptr_t>(parent->mem->memory.get());
+        config.detect_misaligned_access_via_page_table = 4;
+        config.only_detect_misalignment_via_page_table_on_page_boundary = true;
     }
-    config.hook_hint_instructions = true;
+#endif
+
+    if (!log_mem && cpu_opt) {
+         config.fastmem_exclusive_access = true; 
+         config.recompile_on_exclusive_fastmem_failure = true;
+         config.fastmem_pointer = std::optional<uintptr_t>(reinterpret_cast<uintptr_t>(parent->mem->memory.get()));
+    }else{
+         config.fastmem_pointer = std::optional<uintptr_t>(std::nullopt);
+         config.fastmem_exclusive_access = false; 
+         config.recompile_on_exclusive_fastmem_failure = false;
+    }
+    
     config.enable_cycle_counting = false;
+    config.optimizations = cpu_opt ? Dynarmic::all_safe_optimizations : Dynarmic::no_optimizations;  
+    config.hook_hint_instructions = true;
     config.global_monitor = monitor;
     config.coprocessors[15] = cp15;
     config.processor_id = core_id;
-    config.optimizations = cpu_opt ? Dynarmic::all_safe_optimizations : Dynarmic::no_optimizations;
-    config.enable_cycle_counting = false;
-
+    config.wall_clock_cntpct = true;
+    config.unsafe_optimizations = false;
+    
+    // Code cache size
+#if !defined(__AARCH64__)
+    config.code_cache_size =  128 * 1024 * 1024;
+#else
+    config.code_cache_size =  2048 * 1024 * 1024;
+#endif
+    
     return std::make_unique<Dynarmic::A32::Jit>(config);
 }
 
@@ -339,8 +364,7 @@ int DynarmicCPU::run() {
     Dynarmic::HaltReason halt_reason;
     do {
         halt_reason = jit->Run();
-    } while ((halt_reason == Dynarmic::HaltReason::Step) || (halt_reason == Dynarmic::HaltReason::CacheInvalidation));
-
+    } while (halt_reason == Dynarmic::HaltReason::Step || halt_reason == Dynarmic::HaltReason::CacheInvalidation);
     return halted;
 }
 
