@@ -12,7 +12,7 @@
     <integer name="BUTTON_SELECT_Y">805</integer>
     <integer name="BUTTON_START_X">680</integer>
     <integer name="BUTTON_START_Y">805</integer>
-    <integer name="BUTTON_PS_X">475</integer>
+    <integer name="BUTTON_PS_X">400</integer>
     <integer name="BUTTON_PS_Y">875</integer>
     <integer name="DPAD_UP_X">15</integer>
     <integer name="DPAD_UP_Y">245</integer>
@@ -30,4 +30,6 @@
     <integer name="TRIGGER_R2_Y">-45</integer>
     <integer name="BUTTON_TOUCH_SWITCH_X">475</integer>
     <integer name="BUTTON_TOUCH_SWITCH_Y">5</integer>
+    <integer name="BUTTON_TOUCH_HIDE_X">500</integer>
+    <integer name="BUTTON_TOUCH_HIDE_Y">875</integer>
 </resources>
