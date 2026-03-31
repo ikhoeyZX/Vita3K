@@ -419,6 +419,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
           }
           break;
       }
+      }
     }
 
     for (InputOverlayDrawableDpad dpad : overlayDpads)
