@@ -241,6 +241,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
       {
         if ((!hide_overlay && button.getRole() != OVERLAY_MASK_TOUCH_SCREEN_SWITCH) || (button.getRole() & mOverlayMask) == 0)
           continue;
+      }
     
     // Determine the button state to apply based on the MotionEvent action flag.
     switch (action)
@@ -418,7 +419,6 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
             intersect = true;
           }
           break;
-      }
       }
     }
 
