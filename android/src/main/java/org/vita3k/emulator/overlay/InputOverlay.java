@@ -126,9 +126,11 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     mTimer = new Timer();
 
     // call tick every second to check if we should stop displaying the overlay
-    mTimer.scheduleAtFixedRate(new TimerTask() {
+    mTimer.scheduleAtFixedRate(new TimerTask()
+    {
       @Override
-      public void run() {
+      public void run()
+      {
         Emulator emu = (Emulator) SDL.getContext();
         emu.getmOverlay().tick();
       }
@@ -137,7 +139,8 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     resetHideTimer();
   }
 
-  private void resetHideTimer(){
+  private void resetHideTimer()
+  {
     if (!mShowingOverlay)
       invalidate();
 
@@ -145,12 +148,14 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     mlastTouchTime = System.currentTimeMillis();
   }
 
-  public void tick(){
+  public void tick()
+  {
     if (mOverlayMask == 0 || !mShowingOverlay || isInEditMode())
       return;
 
     long current_time = System.currentTimeMillis();
-    if (current_time - mlastTouchTime >= OVERLAY_TIME_BEFORE_HIDE * 1000){
+    if (current_time - mlastTouchTime >= OVERLAY_TIME_BEFORE_HIDE * 1000)
+    {
       mShowingOverlay = false;
       invalidate();
     }
@@ -159,14 +164,11 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
   public void setState(int overlay_mask) {
     boolean was_showing = mOverlayMask != 0;
 
-    if (hide_overlay && mOverlayMask != 4)
-    {
+    if (hide_overlay && mOverlayMask != 4) {
         mOverlayMask = 4;
         refreshControls();
         invalidate();
-    }
-    else if (mOverlayMask != overlay_mask)
-    {
+    } else if (mOverlayMask != overlay_mask) {
         mOverlayMask = overlay_mask;
         invalidate();
     }
@@ -178,9 +180,11 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
       return;
 
     if (is_showing)
+    {
       attachController();
-    else
+    } else {
       detachController();
+    }
 
     invalidate();
   }
@@ -200,25 +204,24 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
 
     for (InputOverlayDrawableButton button : overlayButtons)
     {
-      if (hide_overlay && (button.getRole() == OVERLAY_MASK_TOUCH_SCREEN_SWITCH)) {
-        button.draw(canvas);
-      else if (hide_overlay || (button.getRole() & mOverlayMask) == 0)
-        continue;
-      else
-        button.draw(canvas);
+        if ((button.getRole() & mOverlayMask) == 0){
+            continue;
+         } else {
+            button.draw(canvas);
+         }
     }
 
     if (!hide_overlay)
     {
-      for (InputOverlayDrawableDpad dpad : overlayDpads)
-      {
-        dpad.draw(canvas);
-      }
+        for (InputOverlayDrawableDpad dpad : overlayDpads)
+        {
+          dpad.draw(canvas);
+        }
 
-      for (InputOverlayDrawableJoystick joystick : overlayJoysticks)
-      {
-        joystick.draw(canvas);
-      }
+        for (InputOverlayDrawableJoystick joystick : overlayJoysticks)
+        {
+          joystick.draw(canvas);
+        }
     }
   }
 
@@ -231,7 +234,9 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     resetHideTimer();
 
     if (isInEditMode())
+    {
       return onTouchWhileEditing(event);
+    }
 
     int action = event.getActionMasked();
     boolean firstPointer = action != MotionEvent.ACTION_POINTER_DOWN &&
@@ -241,133 +246,138 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     boolean concerned = false;
 
     for (InputOverlayDrawableButton button : overlayButtons)
-      {
-        if ((!hide_overlay && button.getRole() != OVERLAY_MASK_TOUCH_SCREEN_SWITCH) || (button.getRole() & mOverlayMask) == 0)
-          continue;
-    
-    // Determine the button state to apply based on the MotionEvent action flag.
-    switch (action)
     {
-      case MotionEvent.ACTION_DOWN:
-      case MotionEvent.ACTION_POINTER_DOWN:
-        // If a pointer enters the bounds of a button, press that button.
-        if (button.getBounds()
-                .contains((int) event.getX(pointerIndex), (int) event.getY(pointerIndex)))
-        {
-          button.setPressedState(true);
-          button.setTrackId(event.getPointerId(pointerIndex));
-          concerned = true;
+      if (hide_overlay && button.getRole() != OVERLAY_MASK_TOUCH_SCREEN_SWITCH) {
+          continue;
+      } else if ((button.getRole() & mOverlayMask) == 0){
+          continue;
+      }
 
-          if (button.getLegacyId() == ButtonType.BUTTON_TOUCH_SWITCH)
-            setTouchState(button.getPressed());
-          else if (button.getLegacyId() == ButtonType.BUTTON_TOUCH_HIDE)
-            hide_overlay = !hide_overlay;
-          else
-            setButton(button.getControl(), true);
-        }
-        break;
-      case MotionEvent.ACTION_UP:
-      case MotionEvent.ACTION_POINTER_UP:
-        // If a pointer ends, release the button it was pressing.
-        if (button.getTrackId() == event.getPointerId(pointerIndex))
-        {
-          button.setPressedState(false);
-          if (button.getLegacyId() != ButtonType.BUTTON_TOUCH_SWITCH)
+      // Determine the button state to apply based on the MotionEvent action flag.
+      switch (action)
+      {
+        case MotionEvent.ACTION_DOWN:
+        case MotionEvent.ACTION_POINTER_DOWN:
+          // If a pointer enters the bounds of a button, press that button.
+          if (button.getBounds()
+                  .contains((int) event.getX(pointerIndex), (int) event.getY(pointerIndex)))
           {
-            setButton(button.getControl(), false);
-          }
-          else if(button.getLegacyId() == ButtonType.BUTTON_TOUCH_HIDE && hide_overlay && mOverlayMask != 4)
-          {
-            mOverlayMask = 4;
-            detachController();
-            refreshControls();
-            attachController();
-          }
+            button.setPressedState(true);
+            button.setTrackId(event.getPointerId(pointerIndex));
+            concerned = true;
 
-          button.setTrackId(-1);
-          concerned = true;
-        }
-        break;
-    }
+            if(button.getLegacyId() == ButtonType.BUTTON_TOUCH_SWITCH) {
+              setTouchState(button.getPressed());
+            } else if(button.getLegacyId() == ButtonType.BUTTON_TOUCH_HIDE) {
+              hide_overlay = !hide_overlay;
+            } else {
+              setButton(button.getControl(), true);
+            }
+          }
+          break;
+        case MotionEvent.ACTION_UP:
+        case MotionEvent.ACTION_POINTER_UP:
+          // If a pointer ends, release the button it was pressing.
+          if (button.getTrackId() == event.getPointerId(pointerIndex))
+          {
+            button.setPressedState(false);
+            if(button.getLegacyId() != ButtonType.BUTTON_TOUCH_SWITCH) {
+              setButton(button.getControl(), false);
+            } else if(button.getLegacyId() == ButtonType.BUTTON_TOUCH_HIDE) {
+              if(hide_overlay && mOverlayMask == 4){
+                // ignored
+              }else if(hide_overlay){
+                mOverlayMask = 4;
+                detachController();
+                refreshControls();
+                attachController();
+              }
+            }
+
+            button.setTrackId(-1);
+            concerned = true;
+          }
+          break;
+      }
     }
 
     if (!hide_overlay)
     {
-      for (InputOverlayDrawableDpad dpad : overlayDpads)
-      {
-        // Determine the button state to apply based on the MotionEvent action flag.
-        switch (event.getAction() & MotionEvent.ACTION_MASK)
+        for (InputOverlayDrawableDpad dpad : overlayDpads)
         {
-          case MotionEvent.ACTION_DOWN:
-          case MotionEvent.ACTION_POINTER_DOWN:
-            // If a pointer enters the bounds of a button, press that button.
-            if (dpad.getBounds()
-                    .contains((int) event.getX(pointerIndex), (int) event.getY(pointerIndex)))
-            {
-              dpad.setTrackId(event.getPointerId(pointerIndex));
-              concerned = true;
-            }
-          case MotionEvent.ACTION_MOVE:
-            if (dpad.getTrackId() == event.getPointerId(pointerIndex))
-            {
-              concerned = true;
-              // Up, Down, Left, Right
-              boolean[] dpadPressed = {false, false, false, false};
-
-              if (dpad.getBounds().top + (dpad.getHeight() / 3) > (int) event.getY(pointerIndex))
-                dpadPressed[0] = true;
-              if (dpad.getBounds().bottom - (dpad.getHeight() / 3) < (int) event.getY(pointerIndex))
-                dpadPressed[1] = true;
-              if (dpad.getBounds().left + (dpad.getWidth() / 3) > (int) event.getX(pointerIndex))
-                dpadPressed[2] = true;
-              if (dpad.getBounds().right - (dpad.getWidth() / 3) < (int) event.getX(pointerIndex))
-                dpadPressed[3] = true;
-
-              // Press buttons
-              for (int i = 0; i < dpadPressed.length; i++)
+          // Determine the button state to apply based on the MotionEvent action flag.
+          switch (event.getAction() & MotionEvent.ACTION_MASK)
+          {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
+              // If a pointer enters the bounds of a button, press that button.
+              if (dpad.getBounds()
+                      .contains((int) event.getX(pointerIndex), (int) event.getY(pointerIndex)))
               {
-                if (dpadPressed[i])
+                dpad.setTrackId(event.getPointerId(pointerIndex));
+                concerned = true;
+              }
+            case MotionEvent.ACTION_MOVE:
+              if (dpad.getTrackId() == event.getPointerId(pointerIndex))
+              {
+                concerned = true;
+                // Up, Down, Left, Right
+                boolean[] dpadPressed = {false, false, false, false};
+
+                if (dpad.getBounds().top + (dpad.getHeight() / 3) > (int) event.getY(pointerIndex))
+                  dpadPressed[0] = true;
+                if (dpad.getBounds().bottom - (dpad.getHeight() / 3) < (int) event.getY(pointerIndex))
+                  dpadPressed[1] = true;
+                if (dpad.getBounds().left + (dpad.getWidth() / 3) > (int) event.getX(pointerIndex))
+                  dpadPressed[2] = true;
+                if (dpad.getBounds().right - (dpad.getWidth() / 3) < (int) event.getX(pointerIndex))
+                  dpadPressed[3] = true;
+                
+                // Press buttons
+                for (int i = 0; i < dpadPressed.length; i++)
                 {
-                  setButton(dpad.getControl(i), true);
+                  if (dpadPressed[i])
+                  {
+                    setButton(dpad.getControl(i), true);
+                  }
                 }
+                setDpadState(dpad, dpadPressed[0], dpadPressed[1], dpadPressed[2], dpadPressed[3]);
               }
-              setDpadState(dpad, dpadPressed[0], dpadPressed[1], dpadPressed[2], dpadPressed[3]);
-            }
-            break;
-          case MotionEvent.ACTION_UP:
-          case MotionEvent.ACTION_POINTER_UP:
-            // If a pointer ends, release the buttons.
-            if (dpad.getTrackId() == event.getPointerId(pointerIndex))
-            {
-              concerned = true;
-              for (int i = 0; i < 4; i++)
+              break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
+              // If a pointer ends, release the buttons.
+              if (dpad.getTrackId() == event.getPointerId(pointerIndex))
               {
-                dpad.setState(InputOverlayDrawableDpad.STATE_DEFAULT);
-                setButton(dpad.getControl(i), false);
+                concerned = true;
+                for (int i = 0; i < 4; i++)
+                {
+                  dpad.setState(InputOverlayDrawableDpad.STATE_DEFAULT);
+                  setButton(dpad.getControl(i), false);
+                }
+                dpad.setTrackId(-1);
               }
-              dpad.setTrackId(-1);
-            }
-            break;
+              break;
+          }
         }
-      }
 
-      for (InputOverlayDrawableJoystick joystick : overlayJoysticks)
-      {
-        if (joystick.TrackEvent(event))
+        for (InputOverlayDrawableJoystick joystick : overlayJoysticks)
         {
-          concerned = true;
+          if (joystick.TrackEvent(event))
+          {
+            concerned = true;
 
-          int joyX = Math.round(joystick.getX() * (1 << 15));
-          joyX = Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, joyX));
-          int joyY = Math.round(joystick.getY() * (1 << 15));
-          joyY = Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, joyY));
-          setAxis(joystick.getXControl(), (short)joyX);
-          setAxis(joystick.getYControl(), (short)joyY);
+            int joyX = Math.round(joystick.getX() * (1 << 15));
+            joyX = Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, joyX));
+            int joyY = Math.round(joystick.getY() * (1 << 15));
+            joyY = Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, joyY));
+            setAxis(joystick.getXControl(), (short)joyX);
+            setAxis(joystick.getYControl(), (short)joyY);
+          }
         }
-      }
     }
 
-    if(concerned)
+    if (concerned)
       invalidate();
 
     return concerned;
@@ -545,19 +555,19 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
       overlayButtons.add(initializeOverlayButton(getContext(), R.drawable.button_cross,
               R.drawable.button_cross_pressed, ButtonType.BUTTON_CROSS, ControlId.a,
               orientation, OVERLAY_MASK_BASIC));
-
+    
       overlayButtons.add(initializeOverlayButton(getContext(), R.drawable.button_circle,
               R.drawable.button_circle_pressed, ButtonType.BUTTON_CIRCLE, ControlId.b,
               orientation, OVERLAY_MASK_BASIC));
-
+    
       overlayButtons.add(initializeOverlayButton(getContext(), R.drawable.button_square,
               R.drawable.button_square_pressed, ButtonType.BUTTON_SQUARE, ControlId.x,
               orientation, OVERLAY_MASK_BASIC));
-
+    
       overlayButtons.add(initializeOverlayButton(getContext(), R.drawable.button_triangle,
               R.drawable.button_triangle_pressed, ButtonType.BUTTON_TRIANGLE, ControlId.y,
               orientation, OVERLAY_MASK_BASIC));
-
+    
       overlayButtons.add(initializeOverlayButton(getContext(), R.drawable.button_start,
               R.drawable.button_start_pressed, ButtonType.BUTTON_START,
               ControlId.start, orientation, OVERLAY_MASK_BASIC));
@@ -565,15 +575,15 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
       overlayButtons.add(initializeOverlayButton(getContext(), R.drawable.button_ps,
             R.drawable.button_ps_pressed, ButtonType.BUTTON_PS,
             ControlId.guide, orientation, OVERLAY_MASK_BASIC));
-
+    
       overlayButtons.add(initializeOverlayButton(getContext(), R.drawable.button_select,
               R.drawable.button_select_pressed, ButtonType.BUTTON_SELECT,
               ControlId.select, orientation, OVERLAY_MASK_BASIC));
-
+    
       overlayButtons.add(initializeOverlayButton(getContext(), R.drawable.button_l,
               R.drawable.button_l_pressed, ButtonType.TRIGGER_L,
               ControlId.l1, orientation, OVERLAY_MASK_BASIC));
-
+    
       overlayButtons.add(initializeOverlayButton(getContext(), R.drawable.button_r,
               R.drawable.button_r_pressed, ButtonType.TRIGGER_R,
               ControlId.r1, orientation, OVERLAY_MASK_BASIC));
@@ -586,6 +596,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
             R.drawable.button_r2_pressed, ButtonType.TRIGGER_R2,
             ControlId.r2, orientation, OVERLAY_MASK_L2R2));
 
+    // L3 and R3
     overlayButtons.add(initializeOverlayButton(getContext(), R.drawable.button_l3,
             R.drawable.button_l3_pressed, ButtonType.TRIGGER_L3,
             ControlId.l3, orientation, OVERLAY_MASK_L2R2));
@@ -597,7 +608,8 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     overlayButtons.add(initializeOverlayButton(getContext(), R.drawable.button_touch_f,
             R.drawable.button_touch_b, ButtonType.BUTTON_TOUCH_SWITCH,
             ControlId.touch, orientation, OVERLAY_MASK_TOUCH_SCREEN_SWITCH));
-
+    
+    // show hide button
     overlayButtons.add(initializeOverlayButton(getContext(), R.drawable.button_hide,
             R.drawable.button_hide_pressed, ButtonType.BUTTON_TOUCH_HIDE,
             ControlId.touch, orientation, OVERLAY_MASK_TOUCH_SCREEN_SWITCH));
@@ -607,12 +619,12 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
               R.drawable.dpad_up_left,
               ButtonType.DPAD_UP, ControlId.dup, ControlId.ddown,
               ControlId.dleft, ControlId.dright, orientation));
-
+    
       overlayJoysticks.add(initializeOverlayJoystick(getContext(), R.drawable.joystick_range,
               R.drawable.joystick, R.drawable.joystick_pressed,
               ButtonType.STICK_LEFT, ControlId.axis_left_x,
               ControlId.axis_left_y, orientation));
-
+    
       overlayJoysticks.add(initializeOverlayJoystick(getContext(), R.drawable.joystick_range,
               R.drawable.joystick, R.drawable.joystick_pressed,
               ButtonType.STICK_RIGHT, ControlId.axis_right_x,
@@ -621,7 +633,6 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
 
   public void refreshControls()
   {
-
     // Remove all the overlay buttons from the HashSet.
     overlayButtons.clear();
     overlayDpads.clear();
@@ -640,14 +651,14 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
   }
 
   public void setScale(float scale){
-    if(scale != mGlobalScale){
+    if (scale != mGlobalScale){
       mGlobalScale = scale;
       refreshControls();
     }
   }
 
   public void setOpacity(int opacity){
-    if(opacity != mGlobalOpacity){
+    if (opacity != mGlobalOpacity){
       mGlobalOpacity = opacity;
       refreshControls();
     }
@@ -721,7 +732,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     // Decide scale based on button ID and user preference
     float scale = 0.15f;
 
-    if(legacyId == ButtonType.TRIGGER_L
+    if(legacyId == ButtonType.TRIGGER_L      
             || legacyId == ButtonType.TRIGGER_R
             || legacyId == ButtonType.TRIGGER_L2
             || legacyId == ButtonType.TRIGGER_R2
@@ -977,7 +988,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
             (((float) res.getInteger(R.integer.TRIGGER_R_X) / 1000) * maxX));
     sPrefsEditor.putFloat(ButtonType.TRIGGER_R + "-Y",
             (((float) res.getInteger(R.integer.TRIGGER_R_Y) / 1000) * maxY));
-    sPrefsEditor.putFloat(ButtonType.TRIGGER_L2 + "-X",
+    sPrefsEditor.putFloat(ButtonType.TRIGGER_L2 + "-X",   
             (((float) res.getInteger(R.integer.TRIGGER_L2_X) / 1000) * maxX));
     sPrefsEditor.putFloat(ButtonType.TRIGGER_L2 + "-Y",
             (((float) res.getInteger(R.integer.TRIGGER_L2_Y) / 1000) * maxY));
@@ -1046,14 +1057,15 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     public static final int select = 4;
     public static final int guide = 5;
     public static final int start = 6;
-    public static final int l3 = 7;
-    public static final int r3 = 8;
     public static final int l1 = 9;
     public static final int r1 = 10;
     public static final int dup = 11;
     public static final int ddown = 12;
     public static final int dleft = 13;
     public static final int dright = 14;
+
+    public static final int l3 = 7;
+    public static final int r3 = 8;
 
     // they are axis for sdl but buttons for the ps vita
     public static final int l2 = -4;
@@ -1068,4 +1080,4 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     public static final int axis_right_x = 2;
     public static final int axis_right_y = 3;
   }
-}
+  }
