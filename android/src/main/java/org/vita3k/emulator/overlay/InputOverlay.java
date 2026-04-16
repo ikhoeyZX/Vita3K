@@ -208,7 +208,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
         {
             button.draw(canvas);
         }
-        else if ((button.getRole() & mOverlayMask) == 0)
+        else if (hide_overlay && mOverlayMask == 4) || (button.getRole() & mOverlayMask) == 0)
         {
             continue;
         }
