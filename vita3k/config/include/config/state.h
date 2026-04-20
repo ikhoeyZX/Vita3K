@@ -33,6 +33,7 @@ struct Config {
     std::optional<std::string> pkg_path;
     std::optional<std::string> pkg_zrif;
     std::optional<std::string> pup_path;
+    std::optional<bool> system_music;
 
     // Setting not present in the YAML file
     fs::path config_path = {};
@@ -61,6 +62,7 @@ struct Config {
         bool cpu_opt = true;
         int modules_mode = ModulesMode::AUTOMATIC;
         std::vector<std::string> lle_modules = {};
+        std::string audio_backend = "SDL";
         int audio_volume = 100;
         bool ngs_enable = true;
         bool pstv_mode = false;

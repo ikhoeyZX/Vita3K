@@ -44,6 +44,7 @@ void browse_save_data_dialog(GuiState &gui, EmuEnvState &emuenv, const uint32_t 
 void browse_users_management(GuiState &gui, EmuEnvState &emuenv, const uint32_t button);
 void close_and_run_new_app(EmuEnvState &emuenv, const std::string &app_path);
 void close_live_area_app(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path);
+void close_start_screen(GuiState &gui, EmuEnvState &emuenv);
 void close_system_app(GuiState &gui, EmuEnvState &emuenv);
 void delete_app(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path);
 void destroy_bgm_player();
@@ -93,6 +94,7 @@ bool init_user_backgrounds(GuiState &gui, EmuEnvState &emuenv);
 void init_user_management(GuiState &gui, EmuEnvState &emuenv);
 bool init_user_start_background(GuiState &gui, const std::string &image_path);
 void load_and_update_compat_user_apps(GuiState &gui, EmuEnvState &emuenv);
+void load_fonts(GuiState &gui, EmuEnvState &emuenv, bool reload);
 void open_live_area(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path);
 void open_manual(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path);
 void open_path(const std::string &path);
