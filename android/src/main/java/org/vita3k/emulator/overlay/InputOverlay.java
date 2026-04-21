@@ -254,11 +254,14 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     int pointerIndex = firstPointer ? 0 : event.getActionIndex();
     // track if the overlay is concerned this this action
     boolean concerned = false;
-    int btn_role = button.getRole();
-    int legacy_id = button.getLegacyId();
+    
+    
 
     for (InputOverlayDrawableButton button : overlayButtons)
     {
+      int btn_role = button.getRole();
+      int legacy_id = button.getLegacyId();
+      
       if (hide_overlay && btn_role != OVERLAY_MASK_TOUCH_SCREEN_SWITCH) {
           continue;
       } else if ((btn_role & mOverlayMask) == 0){
