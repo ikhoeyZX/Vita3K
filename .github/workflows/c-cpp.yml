@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Format check
         run: .github/format-check.sh
@@ -79,12 +79,12 @@ jobs:
             vcpkg_triplet: arm64-android
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           submodules: recursive
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           path: ${{ matrix.cache_path }}
           key: cache-${{ matrix.os }}-${{ env.BUILD_CONFIG }}-${{ github.sha }}
@@ -133,13 +133,13 @@ jobs:
       - uses: hendrikmuhs/ccache-action@v1.2
         if: matrix.os == 'android'
 
-      - uses: mozilla-actions/sccache-action@v0.0.9
+      - uses: mozilla-actions/sccache-action@v0.0.10
         if: startsWith(matrix.os, 'windows') || startsWith(matrix.os, 'ubuntu')
         with:
           disable_annotations: true
 
       - name: Restore Gradle Cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: '~/.gradle/'
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle') }}-${{ hashFiles('android/**/*.xml') }}-${{ hashFiles('android/**.java') }}
@@ -260,7 +260,7 @@ jobs:
       github.ref == 'refs/heads/master' &&
       github.repository == 'Vita3K/Vita3K'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
